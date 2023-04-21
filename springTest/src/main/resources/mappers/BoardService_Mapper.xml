@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+
+<mapper namespace="com.myezen.myapp.persistance.BoardService_Mapper">
+
+<sql id="search">
+	<!-- sql태그 : 반복되는 쿼리문이나 여러 쿼리에서 쓰이는 문장을 저장후 불러올수 있다.
+		id 지정후 들어갈 자리에 <include refid ="id" /> 를 쓰면 됨
+	 -->
+
+	<if test="searchType !=null and searchType.equals('writer')">
+	and writer like '%' || #{keyword} ||'%'
+	</if>
+
+	<if test="searchType !=null and searchType.equals('subject')">
+	and subject like '%' || #{keyword} || '%'
+	</if>
+	
+</sql>
+
+
+	<select id="boardSelectAll" parameterType = "scri" resultType = "bv">
+		SELECT * FROM (SELECT ROWNUM AS rnum, A.* FROM 
+		(SELECT * FROM BOARD1230 WHERE DELYN = 'N'
+		<include refid="search"/> ORDER BY originbidx desc, depth asc)A)
+		B WHERE b.rnum BETWEEN (#{page}-1)*#{perPageNum}+1 AND #{page}*#{perPageNum}
+	
+	</select>
+	
+	<select id="boardTotal" parameterType="scri" resultType="int">
+		select count(*) as cnt from board1230 where delyn = 'N' <include refid="search"/>
+	</select>
+	
+	<update id="BoardViewCnt" parameterType="int">
+		update board1230 set viewcnt = nvl(viewcnt,0)+1 where bidx = #{bidx}
+	</update>
+	
+	<select id="boardSelectOne" parameterType="int" resultType="bv">
+		SELECT * FROM BOARD1230 WHERE BIDX = #{bidx}
+	</select>
+	
+	<insert id="boardInsert" parameterType="bv">
+		INSERT INTO board1230(bidx,originbidx,depth,level_,subject,contents,writer,ip,midx,pwd,filename)
+		 VALUES(bidx_seq.nextval,bidx_seq.nextval,0,0,#{subject},#{contents},#{writer},#{ip},#{midx},#{pwd},#{filename})
+	</insert>
+		
+	<update id="boardModify" parameterType="bv">
+	
+	update board1230 set subject =#{subject}, contents=#{contents},writer=#{writer},filename=#{filename},midx =#{midx},ip=#{ip} where bidx=#{bidx} and pwd =#{pwd}
+	
+	</update>
+		
+		
+	<update id="boardDelete" parameterType="int">
+		update board1230 set delyn='Y' where bidx=#{bidx}
+	</update>
+	
+	<!-- <update id="boardReplyUpdate" parameterType="int">
+	update board1230 set depth = depth+1 where originbidx = #{0} and depth > #{1}
+	  -->
+	<update id="boardReplyUpdate" parameterType="HashMap">
+	
+	update board1230 set depth = depth+1 where originbidx = #{originbidx} and depth > #{depth}
+	</update>
+	
+	<insert id="boardReplyInsert" parameterType="bv">
+	
+	INSERT INTO board1230(bidx,originbidx,depth,level_,subject,contents,writer,ip,midx,pwd,filename)
+	VALUES(bidx_seq.nextval,#{originbidx},#{depth}+1,#{level_}+1,#{subject},#{contents},#{writer},#{ip},#{midx},#{pwd},#{filename})
+		
+	
+	</insert>
+	
+	
+</mapper>

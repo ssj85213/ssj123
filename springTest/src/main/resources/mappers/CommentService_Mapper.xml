@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.myezen.myapp.persistance.CommentService_Mapper">
+
+	<insert id="commentInsert" parameterType="cv">		
+		INSERT INTO COMMENTS1230(CIDX,CWRITER,CCONTENTS,MIDX,BIDX,IP)
+	 	VALUES(cidx_seq.nextval,#{cwriter},#{ccontents},#{midx},#{bidx},#{ip})
+	</insert>
+
+<!--같은 타입 여러개 넘길때 배열에 담기기 때문에 변수명말고 배열번호로 써야함  -->
+	<select id="commentSelectAll" parameterType="Integer" resultType ="cv">
+	
+	SELECT * FROM (SELECT ROWNUM AS rnum, A.* FROM
+		(SELECT * FROM comments1230 WHERE DELYN = 'N' AND BIDX = #{0} ORDER BY cidx desc)A)B WHERE b.rnum BETWEEN 1 AND #{1}*15
+
+	</select>
+	
+	<select id="commentToalCnt" parameterType="Integer" resultType = "Integer" >
+	
+		select count(*) as cnt from comments1230 where delyn = 'N' and bidx=#{bidx}
+	
+	</select>
+	
+	<update id="commentDelete" parameterType="cv">
+			update comments1230 set delyn='Y' where bidx=#{bidx} and cidx = #{cidx}
+	</update>
+
+</mapper>
