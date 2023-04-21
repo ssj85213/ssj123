@@ -10,7 +10,7 @@
 <html>
 	<head>
 	<meta charset="UTF-8">
-	<title>boardContents</title>
+	<title>boardContents123123123</title>
 	<script src="https://code.jquery.com/jquery-3.6.0.js"></script>
 	<script type="text/javascript">
 	$(document).ready(function(){
